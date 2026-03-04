@@ -3,215 +3,470 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Campus IT | Monitoring</title>
-    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <title>Campus IT | Tableau de Bord</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         :root {
-            --sidebar-bg: #1e293b;
-            --sidebar-text: #f8fafc;
-            --primary: #3b82f6;
-            --bg-main: #f1f5f9;
-            --card-bg: #ffffff;
-            --text-dark: #334155;
-            --border: #e2e8f0;
-            --stockage: #10b981;
-            --reseau: #6366f1;
+            --bg-base: #0b1120;
+            --bg-panel: #111827;
+            --bg-card: #1f2937;
+            --cyan-glow: #06b6d4;
+            --magenta: #ec4899;
+            --yellow: #eab308;
+            --green: #10b981;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --border: rgba(255, 255, 255, 0.05);
         }
 
-        body { font-family: 'Roboto', sans-serif; margin: 0; background-color: var(--bg-main); display: flex; height: 100vh; color: var(--text-dark); }
+        body { font-family: 'Inter', sans-serif; margin: 0; background-color: var(--bg-base); display: flex; height: 100vh; color: var(--text-main); overflow: hidden; }
 
-        /* SIDEBAR (Menu Latéral) */
-        .sidebar { width: 260px; background-color: var(--sidebar-bg); color: var(--sidebar-text); display: flex; flex-direction: column; flex-shrink: 0; }
-        .brand { padding: 20px; font-size: 1.5rem; font-weight: 700; border-bottom: 1px solid #334155; display: flex; align-items: center; gap: 10px; }
-        .brand span { color: var(--primary); }
-        .menu { list-style: none; padding: 0; margin: 20px 0; }
-        .menu li { padding: 0; margin-bottom: 5px; }
+        /* SCROLLBAR */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: var(--bg-base); }
+        ::-webkit-scrollbar-thumb { background: var(--bg-card); border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: var(--cyan-glow); }
+
+        /* SIDEBAR */
+        .sidebar { width: 280px; background-color: var(--bg-panel); border-right: 1px solid var(--border); display: flex; flex-direction: column; flex-shrink: 0; }
+        .brand { padding: 30px 20px; font-size: 1.5rem; font-weight: 800; display: flex; align-items: center; gap: 10px; color: var(--text-main); }
+
+        .section-title { font-size: 0.7rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 2px; padding: 0 20px; margin-top: 20px; margin-bottom: 10px; }
+        .menu { list-style: none; padding: 0; margin: 0; }
         .menu button {
-            background: none; border: none; width: 100%; text-align: left; padding: 15px 25px;
-            color: #94a3b8; font-size: 1rem; cursor: pointer; transition: 0.3s; display: flex; align-items: center; gap: 10px;
+            background: none; border: none; width: 100%; text-align: left; padding: 15px 20px;
+            color: var(--text-muted); font-size: 0.95rem; cursor: pointer; transition: 0.3s; position: relative; font-family: 'Inter', sans-serif;
+            border-left: 4px solid transparent;
         }
-        .menu button:hover, .menu button.active { background-color: #334155; color: white; border-left: 4px solid var(--primary); }
-        .user-info { margin-top: auto; padding: 20px; border-top: 1px solid #334155; font-size: 0.85rem; color: #94a3b8; }
+        .menu button:hover, .menu button.active { color: var(--text-main); background: rgba(6, 182, 212, 0.05); border-left-color: var(--cyan-glow); }
 
         /* MAIN CONTENT */
-        .main-content { flex-grow: 1; overflow-y: auto; padding: 30px; }
-        .header { margin-bottom: 30px; }
-        .header h2 { margin: 0; font-size: 1.8rem; font-weight: 500; }
-        .header p { color: #64748b; margin-top: 5px; }
+        .main-content { flex-grow: 1; overflow-y: auto; padding: 40px; padding-bottom: 80px; }
+        .header-top { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 40px; }
+        .header-top h2 { margin: 0; font-size: 2.5rem; font-weight: 800; letter-spacing: -1px; }
+        .header-top p { color: var(--text-muted); margin-top: 5px; font-family: 'JetBrains Mono', monospace; font-size: 0.9rem; }
+        .period-badge { background: rgba(6, 182, 212, 0.1); border: 1px solid var(--cyan-glow); color: var(--cyan-glow); padding: 8px 16px; border-radius: 20px; font-size: 0.85rem; font-weight: 600; }
 
-        /* CARDS & CONTAINERS */
-        .card { background: var(--card-bg); border-radius: 8px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); padding: 25px; margin-bottom: 20px; animation: fadeIn 0.5s ease; display: none; }
-        .card.visible { display: block; }
-        .card-title { font-size: 1.1rem; font-weight: 700; margin-bottom: 20px; color: #0f172a; border-bottom: 2px solid var(--bg-main); padding-bottom: 15px; }
+        /* KPI CARDS */
+        .kpi-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; margin-bottom: 40px; }
+        .kpi-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; padding: 20px; display: flex; align-items: center; gap: 20px; position: relative; overflow: hidden; }
+        .kpi-card::before { content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 2px; }
+        .kpi-card.cpu::before { background: var(--magenta); box-shadow: 0 0 10px var(--magenta); }
+        .kpi-card.stockage::before { background: var(--yellow); box-shadow: 0 0 10px var(--yellow); }
+        .kpi-card.reseau::before { background: var(--green); box-shadow: 0 0 10px var(--green); }
+        .kpi-card.top-app::before { background: var(--cyan-glow); box-shadow: 0 0 10px var(--cyan-glow); }
 
-        /* TABLES */
-        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
-        th { text-align: left; padding: 12px; background-color: #f8fafc; color: #64748b; font-size: 0.85rem; text-transform: uppercase; font-weight: 700; border-bottom: 1px solid var(--border); }
-        td { padding: 15px 12px; border-bottom: 1px solid var(--border); font-size: 0.95rem; }
-        tr:last-child td { border: none; }
+        .kpi-data h4 { margin: 0; font-size: 0.7rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; }
+        .kpi-data .val { font-size: 1.8rem; font-weight: 800; margin: 5px 0; font-family: 'JetBrains Mono', monospace; }
+        .kpi-data .val span { font-size: 1rem; color: var(--text-muted); }
+        .kpi-data .sub { font-size: 0.75rem; color: var(--text-muted); }
+        .top-app .val { font-size: 1.4rem; color: var(--cyan-glow); }
 
-        /* UTILITAIRES COMPARATIFS (Visualisation) */
-        .bar-container { background-color: #e2e8f0; height: 8px; border-radius: 4px; overflow: hidden; width: 100px; display: inline-block; vertical-align: middle; margin-right: 10px; }
-        .bar-fill { height: 100%; border-radius: 4px; }
-        .badge { padding: 4px 8px; border-radius: 4px; font-size: 0.75rem; font-weight: 700; text-transform: uppercase; }
-        .badge-stock { background-color: #d1fae5; color: #065f46; }
-        .badge-res { background-color: #e0e7ff; color: #3730a3; }
-
-        .comparison-row { display: flex; align-items: center; gap: 15px; }
-        .stat-box { flex: 1; text-align: center; padding: 10px; background: #f8fafc; border-radius: 6px; }
-        .stat-val { font-size: 1.2rem; font-weight: 700; display: block; }
-        .stat-label { font-size: 0.75rem; color: #64748b; text-transform: uppercase; }
-
+        /* VIEWS (SPA) */
+        .view-section { display: none; animation: fadeIn 0.4s ease-out forwards; }
+        .view-section.active { display: block; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* SUB-PANELS (Graphiques et Tableaux) */
+        .panel { background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; padding: 30px; margin-bottom: 20px; }
+        .panel-header { margin-bottom: 25px; }
+        .panel-subtitle { font-family: 'JetBrains Mono', monospace; color: var(--cyan-glow); font-size: 0.8rem; margin-bottom: 5px; }
+        .panel-title { font-size: 1.2rem; font-weight: 700; color: var(--text-main); margin: 0; }
+
+        /* BENTO BOX GRID (NOUVEAU DESIGN DASHBOARD) */
+        .bento-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+        .bento-large { grid-column: span 2; grid-row: span 2; }
+        .bento-small { grid-column: span 1; }
+
+        .summary-box { background: rgba(0,0,0,0.2); padding: 15px; border-radius: 8px; margin-bottom: 15px; border-left: 3px solid; transition: 0.2s; }
+        .summary-box:hover { background: rgba(255,255,255,0.05); }
+
+        /* CHART CONTAINER */
+        .chart-container { position: relative; height: 300px; width: 100%; }
+
+        /* TABLEAUX */
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+        th { text-align: left; padding: 15px; color: var(--text-muted); font-size: 0.75rem; text-transform: uppercase; border-bottom: 1px solid var(--border); letter-spacing: 1px; }
+        td { padding: 15px; border-bottom: 1px solid rgba(255,255,255,0.02); font-size: 0.95rem; }
+        tr:hover td { background-color: rgba(255,255,255,0.02); }
+        .mono { font-family: 'JetBrains Mono', monospace; }
+        .td-highlight { color: var(--cyan-glow); font-weight: 700; }
+
+        .bar-bg { background: rgba(255,255,255,0.05); height: 6px; border-radius: 3px; width: 100px; overflow: hidden; display: inline-block; vertical-align: middle; margin-left: 10px; }
+        .bar-fill { height: 100%; background: var(--cyan-glow); box-shadow: 0 0 8px var(--cyan-glow); }
+
+        /* BADGES */
+        .badge { padding: 4px 8px; border-radius: 4px; font-size: 0.7rem; font-weight: 700; text-transform: uppercase; font-family: 'JetBrains Mono', monospace; }
+        .badge-alert { background: rgba(236, 72, 153, 0.1); color: var(--magenta); border: 1px solid var(--magenta); }
+        .badge-ok { background: rgba(16, 185, 129, 0.1); color: var(--green); border: 1px solid var(--green); }
     </style>
 </head>
 <body>
 
 <aside class="sidebar">
     <div class="brand">
-        <span>⚡</span> Campus IT
+        Campus IT
     </div>
+
+    <div class="section-title">Analyses</div>
     <ul class="menu">
-        <li><button class="active" onclick="showTab('tab-apps', this)">📊 Top Applications</button></li>
-        <li><button onclick="showTab('tab-evol', this)">📈 Évolution Mensuelle</button></li>
-        <li><button onclick="showTab('tab-compare', this)">⚖️ Comparateur</button></li>
+        <li><button class="active" onclick="switchTab('tab-dashboard', this)">Vue d'ensemble</button></li>
+        <li><button onclick="switchTab('tab-apps', this)">Top Applications</button></li>
+        <li><button onclick="switchTab('tab-evol', this)">Évolution Mensuelle</button></li>
+        <li><button onclick="switchTab('tab-compare', this)">Comparaison Ressources</button></li>
+        <li><button onclick="switchTab('tab-alertes', this)">Logs & Alertes</button></li>
     </ul>
-    <div class="user-info">
-        Service Informatique<br>
-        Session: Admin
-    </div>
 </aside>
 
 <main class="main-content">
-    <div class="header">
-        <h2>Tableau de Bord</h2>
-        <p>Analyse des ressources (Janvier - Juin 2025)</p>
+    <div class="header-top">
+        <div>
+            <h2>Tableau de bord</h2>
+            <p>Vue d'ensemble détaillée • Supervision IT</p>
+        </div>
+        <div class="period-badge">JAN - JUIN 2025</div>
     </div>
 
-    <div id="tab-apps" class="card visible">
-        <div class="card-title">Top 5 Applications (Consommation Totale)</div>
-        <div id="content-apps">Chargement...</div>
+    <div class="kpi-grid">
+        <div class="kpi-card cpu">
+            <div class="kpi-data">
+                <h4>CPU Total Alloué</h4>
+                <div class="val mono" id="kpi-cpu">-- <span>vCPU</span></div>
+                <div class="sub">Cumul 6 mois</div>
+            </div>
+        </div>
+        <div class="kpi-card stockage">
+            <div class="kpi-data">
+                <h4>Volume Stockage</h4>
+                <div class="val mono" id="kpi-stock">-- <span>Go</span></div>
+                <div class="sub">Cumul 6 mois</div>
+            </div>
+        </div>
+        <div class="kpi-card reseau">
+            <div class="kpi-data">
+                <h4>Trafic Réseau</h4>
+                <div class="val mono" id="kpi-res">-- <span>Go</span></div>
+                <div class="sub">Cumul 6 mois</div>
+            </div>
+        </div>
+        <div class="kpi-card top-app">
+            <div class="kpi-data">
+                <h4>Application Principale</h4>
+                <div class="val" id="kpi-topname">Chargement...</div>
+                <div class="sub mono" id="kpi-topval">-- unités</div>
+            </div>
+        </div>
     </div>
 
-    <div id="tab-evol" class="card">
-        <div class="card-title">Évolution Globale du Campus</div>
-        <div id="content-evol">Chargement...</div>
+    <div id="tab-dashboard" class="view-section active">
+        <div class="bento-grid">
+
+            <div class="panel bento-large">
+                <div class="panel-header">
+                    <div class="panel-subtitle">// TENDANCE GLOBALE</div>
+                    <h3 class="panel-title">Évolution de la consommation totale</h3>
+                </div>
+                <div class="chart-container" style="height: 380px;">
+                    <canvas id="mainDashboardChart"></canvas>
+                </div>
+            </div>
+
+            <div class="panel bento-small">
+                <div class="panel-header">
+                    <div class="panel-subtitle">// RÉPARTITION</div>
+                    <h3 class="panel-title">Volume par ressource</h3>
+                </div>
+                <div class="chart-container" style="height: 200px;">
+                    <canvas id="doughnutChart"></canvas>
+                </div>
+            </div>
+
+            <div class="panel bento-small" style="display: flex; flex-direction: column; justify-content: flex-start;">
+                <div class="panel-header" style="margin-bottom: 20px;">
+                    <div class="panel-subtitle">// SYNTHÈSE RAPIDE</div>
+                    <h3 class="panel-title">Points d'attention</h3>
+                </div>
+
+                <div class="summary-box" style="border-left-color: var(--yellow);">
+                    <div style="font-size: 0.75rem; color: var(--text-muted); margin-bottom: 5px;">RESSOURCE DOMINANTE</div>
+                    <strong id="synth-res" style="color: var(--text-main); font-size: 1.1rem; font-family: 'JetBrains Mono', monospace;">Calcul en cours...</strong>
+                </div>
+
+                <div class="summary-box" style="border-left-color: var(--cyan-glow);">
+                    <div style="font-size: 0.75rem; color: var(--text-muted); margin-bottom: 5px;">APP LA PLUS GOURMANDE</div>
+                    <strong id="synth-app" style="color: var(--text-main); font-size: 1.1rem; font-family: 'JetBrains Mono', monospace;">Calcul en cours...</strong>
+                </div>
+
+                <div class="summary-box" style="border-left-color: var(--magenta);">
+                    <div style="font-size: 0.75rem; color: var(--text-muted); margin-bottom: 5px;">DERNIÈRE ALERTE (JUIN)</div>
+                    <strong id="synth-alert" style="color: var(--magenta); font-size: 1rem; font-family: 'JetBrains Mono', monospace;">Calcul en cours...</strong>
+                </div>
+            </div>
+
+        </div>
     </div>
 
-    <div id="tab-compare" class="card">
-        <div class="card-title">Comparaison : Stockage vs Réseau</div>
-        <p style="font-size:0.9rem; color:#64748b; margin-bottom:20px;">Analyse comparative des volumes consommés mois par mois.</p>
-        <div id="content-compare">Chargement...</div>
+    <div id="tab-apps" class="view-section">
+        <div class="panel">
+            <div class="panel-header">
+                <div class="panel-subtitle">// CLASSEMENT</div>
+                <h3 class="panel-title">Les 5 applications les plus consommatrices</h3>
+            </div>
+            <div id="content-apps">Chargement...</div>
+        </div>
     </div>
+
+    <div id="tab-evol" class="view-section">
+        <div class="panel">
+            <div class="panel-header">
+                <div class="panel-subtitle">// DATA BRUTE</div>
+                <h3 class="panel-title">Historique mensuel détaillé</h3>
+            </div>
+            <div id="content-evol">Chargement...</div>
+        </div>
+    </div>
+
+    <div id="tab-compare" class="view-section">
+        <div class="panel">
+            <div class="panel-header">
+                <div class="panel-subtitle">// ANALYSE CROISÉE</div>
+                <h3 class="panel-title">Stockage vs Réseau</h3>
+            </div>
+            <div class="chart-container" style="height: 350px; margin-bottom: 30px;">
+                <canvas id="compareChart"></canvas>
+            </div>
+            <div id="content-compare"></div>
+        </div>
+    </div>
+
+    <div id="tab-alertes" class="view-section">
+        <div class="panel">
+            <div class="panel-header">
+                <div class="panel-subtitle">// SÉCURITÉ & SURCHARGE</div>
+                <h3 class="panel-title">Pics de charge détectés (Juin 2025)</h3>
+            </div>
+            <div id="content-alertes">Chargement...</div>
+        </div>
+    </div>
+
 </main>
 
 <script>
-    // Gestion des onglets
-    function showTab(id, btn) {
-        document.querySelectorAll('.card').forEach(c => c.classList.remove('visible'));
-        document.getElementById(id).classList.add('visible');
-        document.querySelectorAll('.menu button').forEach(b => b.classList.remove('active'));
+    Chart.defaults.color = '#94a3b8';
+    Chart.defaults.font.family = "'JetBrains Mono', monospace";
+    Chart.defaults.borderColor = 'rgba(255, 255, 255, 0.05)';
+
+    let charts = {};
+
+    function switchTab(tabId, btn) {
+        document.querySelectorAll('.view-section').forEach(el => el.classList.remove('active'));
+        document.getElementById(tabId).classList.add('active');
+        document.querySelectorAll('.menu button').forEach(el => el.classList.remove('active'));
         btn.classList.add('active');
     }
 
-    // Chargement des données au démarrage
-    document.addEventListener('DOMContentLoaded', () => {
-        loadTopApps();
-        loadEvolution();
-        loadComparison();
+    document.addEventListener('DOMContentLoaded', async () => {
+        await Promise.all([
+            fetchDataAndRender('/api/evolution', renderEvolution),
+            fetchDataAndRender('/api/top-apps', renderTopApps),
+            fetchDataAndRender('/api/repartition', renderRepartition),
+            fetchDataAndRender('/api/comparison', renderComparison),
+            fetchDataAndRender('/api/alertes', renderAlertes)
+        ]);
     });
 
-    // 1. Top Apps
-    async function loadTopApps() {
+    async function fetchDataAndRender(url, renderFunction) {
         try {
-            const res = await fetch('/api/top-apps');
-            const data = await res.json();
-            let html = '<table><thead><tr><th>Rang</th><th>Application</th><th>Volume Total</th><th>Part Relative</th></tr></thead><tbody>';
-
-            // On trouve le max pour faire des barres de progression relatives
-            const max = Math.max(...data.map(d => parseFloat(d.total)));
-
-            data.forEach((row, i) => {
-                const pct = (row.total / max) * 100;
-                html += `<tr>
-                        <td><strong>#${i+1}</strong></td>
-                        <td>${row.application}</td>
-                        <td style="font-family:monospace; font-weight:700">${parseFloat(row.total).toFixed(2)}</td>
-                        <td>
-                            <div class="bar-container" style="width:150px"><div class="bar-fill" style="width:${pct}%; background-color: var(--primary)"></div></div>
-                        </td>
-                    </tr>`;
-            });
-            html += '</tbody></table>';
-            document.getElementById('content-apps').innerHTML = html;
-        } catch(e) { document.getElementById('content-apps').innerHTML = 'Erreur API'; }
+            const response = await fetch(url);
+            const data = await response.json();
+            renderFunction(data);
+        } catch (error) {
+            console.error('Erreur sur ' + url, error);
+        }
     }
 
-    // 2. Évolution
-    async function loadEvolution() {
-        try {
-            const res = await fetch('/api/evolution');
-            const data = await res.json();
-            let html = '<table><thead><tr><th>Mois</th><th>Volume Cumulé</th><th>Tendance</th></tr></thead><tbody>';
+    // 1. Évolution
+    function renderEvolution(data) {
+        const labels = data.map(d => d.mois_fmt);
+        const values = data.map(d => parseFloat(d.total));
 
-            let prev = 0;
-            data.forEach(row => {
-                const current = parseFloat(row.total);
-                let trend = current > prev ? '<span style="color:#10b981">↗ Hausse</span>' : '<span style="color:#ef4444">↘ Baisse</span>';
-                if(prev === 0) trend = '-';
+        const ctx = document.getElementById('mainDashboardChart').getContext('2d');
+        let gradient = ctx.createLinearGradient(0, 0, 0, 380);
+        gradient.addColorStop(0, 'rgba(6, 182, 212, 0.4)');
+        gradient.addColorStop(1, 'rgba(6, 182, 212, 0.0)');
 
-                html += `<tr>
-                        <td>${row.mois_fmt}</td>
-                        <td style="font-weight:700">${current.toFixed(2)}</td>
-                        <td>${trend}</td>
-                    </tr>`;
-                prev = current;
-            });
-            html += '</tbody></table>';
-            document.getElementById('content-evol').innerHTML = html;
-        } catch(e) { document.getElementById('content-evol').innerHTML = 'Erreur API'; }
+        charts.main = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: 'Volume Cumulé',
+                    data: values,
+                    borderColor: '#06b6d4',
+                    backgroundColor: gradient,
+                    borderWidth: 3,
+                    pointBackgroundColor: '#0b1120',
+                    pointBorderColor: '#06b6d4',
+                    pointBorderWidth: 2,
+                    pointRadius: 5,
+                    pointHoverRadius: 7,
+                    fill: true,
+                    tension: 0.4
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: true, position: 'top', labels: { color: '#94a3b8', font: {family: "'JetBrains Mono', monospace"} } },
+                    tooltip: { callbacks: { label: function(context) { return context.parsed.y + ' unités'; } } }
+                },
+                scales: {
+                    y: { beginAtZero: false, grid: { color: 'rgba(255,255,255,0.02)' }, ticks: { color: '#94a3b8', callback: function(value) { return value + ' u'; } } },
+                    x: { grid: { display: false }, ticks: { color: '#94a3b8' } }
+                }
+            }
+        });
+
+        let html = '<table><thead><tr><th>Mois</th><th>Volume Cumulé</th><th>Tendance</th></tr></thead><tbody>';
+        let prev = 0;
+        data.forEach(row => {
+            const current = parseFloat(row.total);
+            let trend = current > prev ? '<span style="color:var(--green)">↗ Hausse</span>' : '<span style="color:var(--magenta)">↘ Baisse</span>';
+            if(prev === 0) trend = '-';
+            html += `<tr><td class="mono">${row.mois_fmt}</td><td class="mono td-highlight">${current.toFixed(2)}</td><td class="mono">${trend}</td></tr>`;
+            prev = current;
+        });
+        html += '</tbody></table>';
+        document.getElementById('content-evol').innerHTML = html;
     }
 
-    [cite_start]// 3. Comparaison (Utilitaires visuels demandés) [cite: 87]
-    async function loadComparison() {
-        try {
-            const res = await fetch('/api/comparison');
-            const data = await res.json();
-            let html = '<table><thead><tr><th>Mois</th><th style="text-align:center">Stockage</th><th style="text-align:center">Réseau</th><th>Delta</th></tr></thead><tbody>';
+    // 2. Top Apps
+    function renderTopApps(data) {
+        if(data.length > 0) {
+            document.getElementById('kpi-topname').innerText = data[0].application;
+            document.getElementById('kpi-topval').innerText = parseFloat(data[0].total).toFixed(0) + ' unités';
+            // MAJ du nouveau bloc Synthèse
+            document.getElementById('synth-app').innerText = data[0].application;
+        }
 
-            data.forEach(row => {
-                const stock = parseFloat(row.stockage);
-                const net = parseFloat(row.reseau);
-                const diff = net - stock;
+        let html = '<table><thead><tr><th>Rang</th><th>Application</th><th>Volume Total</th><th>Proportion</th></tr></thead><tbody>';
+        const max = Math.max(...data.map(d => parseFloat(d.total)));
+        data.forEach((row, i) => {
+            const pct = (row.total / max) * 100;
+            html += `<tr>
+                <td class="mono">0${i+1}</td>
+                <td style="font-weight:600; color:var(--text-main)">${row.application}</td>
+                <td class="mono td-highlight">${parseFloat(row.total).toFixed(2)}</td>
+                <td><div class="bar-bg"><div class="bar-fill" style="width:${pct}%"></div></div></td>
+            </tr>`;
+        });
+        html += '</tbody></table>';
+        document.getElementById('content-apps').innerHTML = html;
+    }
 
-                // Calcul visuel de qui gagne
-                const winnerClass = net > stock ? 'badge-res' : 'badge-stock';
-                const winnerLabel = net > stock ? 'DOMINANTE RÉSEAU' : 'DOMINANTE STOCKAGE';
-                const diffVal = Math.abs(diff).toFixed(2);
+    // 3. Comparaison
+    function renderComparison(data) {
+        const labels = data.map(d => d.mois_fmt);
+        const stockData = data.map(d => parseFloat(d.stockage));
+        const resData = data.map(d => parseFloat(d.reseau));
 
-                html += `<tr>
-                        <td style="font-weight:bold">${row.mois_fmt}</td>
-                        <td>
-                            <div class="stat-box" style="border-left: 4px solid var(--stockage)">
-                                <span class="stat-val" style="color:var(--stockage)">${stock.toFixed(2)}</span>
-                                <span class="stat-label">Stockage</span>
-                            </div>
-                        </td>
-                        <td>
-                            <div class="stat-box" style="border-left: 4px solid var(--reseau)">
-                                <span class="stat-val" style="color:var(--reseau)">${net.toFixed(2)}</span>
-                                <span class="stat-label">Réseau</span>
-                            </div>
-                        </td>
-                        <td>
-                            <span class="badge ${winnerClass}">${winnerLabel}</span><br>
-                            <small style="color:#64748b; margin-top:5px; display:block;">Écart: ${diffVal} unités</small>
-                        </td>
-                    </tr>`;
-            });
-            html += '</tbody></table>';
-            document.getElementById('content-compare').innerHTML = html;
-        } catch(e) { document.getElementById('content-compare').innerHTML = 'Erreur API'; }
+        const ctx = document.getElementById('compareChart').getContext('2d');
+        charts.compare = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: labels,
+                datasets: [
+                    { label: 'Stockage', data: stockData, backgroundColor: '#eab308', borderRadius: 4 },
+                    { label: 'Réseau', data: resData, backgroundColor: '#10b981', borderRadius: 4 }
+                ]
+            },
+            options: {
+                responsive: true, maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: true, labels: { color: '#94a3b8', font: {family: "'JetBrains Mono', monospace"} } },
+                    tooltip: { callbacks: { label: function(context) { return context.dataset.label + ' : ' + context.parsed.y + ' Go'; } } }
+                },
+                scales: {
+                    y: { grid: { color: 'rgba(255,255,255,0.02)' }, ticks: { color: '#94a3b8', callback: function(value) { return value + ' Go'; } } },
+                    x: { grid: { display: false }, ticks: { color: '#94a3b8' } }
+                }
+            }
+        });
+
+        let html = '<table><thead><tr><th>Mois</th><th>Stockage</th><th>Réseau</th><th>Delta</th></tr></thead><tbody>';
+        data.forEach(row => {
+            const stock = parseFloat(row.stockage);
+            const net = parseFloat(row.reseau);
+            const diff = Math.abs(net - stock).toFixed(2);
+            html += `<tr>
+                <td class="mono">${row.mois_fmt}</td>
+                <td class="mono" style="color:var(--yellow)">${stock.toFixed(2)} Go</td>
+                <td class="mono" style="color:var(--green)">${net.toFixed(2)} Go</td>
+                <td class="mono">± ${diff} Go</td>
+            </tr>`;
+        });
+        html += '</tbody></table>';
+        document.getElementById('content-compare').innerHTML = html;
+    }
+
+    // 4. Répartition
+    function renderRepartition(data) {
+        data.forEach(row => {
+            if(row.ressource.includes('CPU')) document.getElementById('kpi-cpu').innerHTML = `${parseFloat(row.total).toFixed(0)} <span>vCPU</span>`;
+            if(row.ressource.includes('Stockage')) document.getElementById('kpi-stock').innerHTML = `${parseFloat(row.total).toFixed(0)} <span>Go</span>`;
+            if(row.ressource.includes('Réseau')) document.getElementById('kpi-res').innerHTML = `${parseFloat(row.total).toFixed(0)} <span>Go</span>`;
+        });
+
+        // MAJ du nouveau bloc Synthèse (On prend la ressource n°1)
+        if(data.length > 0) {
+            document.getElementById('synth-res').innerText = data[0].ressource;
+        }
+
+        const ctx = document.getElementById('doughnutChart').getContext('2d');
+        charts.doughnut = new Chart(ctx, {
+            type: 'doughnut',
+            data: {
+                labels: data.map(d => d.ressource),
+                datasets: [{
+                    data: data.map(d => parseFloat(d.total)),
+                    backgroundColor: ['#eab308', '#10b981', '#ec4899'],
+                    borderColor: '#111827',
+                    borderWidth: 2,
+                    hoverOffset: 4
+                }]
+            },
+            options: {
+                responsive: true, maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false }, // Légende masquée pour gagner de la place dans la Bento box
+                    tooltip: { callbacks: { label: function(context) { return ' ' + context.label + ' : ' + context.parsed + ' unités'; } } }
+                },
+                cutout: '70%'
+            }
+        });
+    }
+
+    // 5. Alertes
+    function renderAlertes(data) {
+        // MAJ du nouveau bloc Synthèse
+        if(data.length > 0) {
+            document.getElementById('synth-alert').innerText = data[0].application + ' (' + data[0].ressource + ')';
+        }
+
+        let html = '<table><thead><tr><th>Statut</th><th>Application</th><th>Ressource</th><th>Volume Pic</th></tr></thead><tbody>';
+        data.forEach((row, i) => {
+            const badge = i === 0 ? '<span class="badge badge-alert">CRITIQUE</span>' : '<span class="badge badge-ok">WARNING</span>';
+            html += `<tr>
+                <td>${badge}</td>
+                <td style="color:var(--text-main)">${row.application}</td>
+                <td class="mono">${row.ressource}</td>
+                <td class="mono" style="color:${i===0 ? 'var(--magenta)' : 'var(--text-main)'}">${parseFloat(row.pic).toFixed(2)} u</td>
+            </tr>`;
+        });
+        html += '</tbody></table>';
+        document.getElementById('content-alertes').innerHTML = html;
     }
 </script>
 </body>
