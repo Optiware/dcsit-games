@@ -6,8 +6,8 @@ use Illuminate\Database\Eloquent\Model;
 
 class Application extends Model
 {
-    // On précise le nom de la table (facultatif si pluriel standard, mais plus sûr)
-    protected $table = 'applications';
+    // Nom de table du sujet (au singulier)
+    protected $table = 'application';
 
     // IMPORTANT : On définit la clé primaire car ce n'est pas "id" mais "app_id"
     protected $primaryKey = 'app_id';

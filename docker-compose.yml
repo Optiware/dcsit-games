@@ -1,10 +1,8 @@
-version: '3.8'
-
 services:
   mariadb:
     image: mariadb:10.11
     container_name: campus_mariadb
-    restart: always
+    restart: unless-stopped
     environment:
       MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD:?définir DB_ROOT_PASSWORD}
       MYSQL_DATABASE: campus_it

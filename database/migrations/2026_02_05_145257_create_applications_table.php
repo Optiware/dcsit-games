@@ -6,24 +6,17 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     */
-    public function up()
+    // Même structure que database/sql/schema.sql (sujet du concours).
+    public function up(): void
     {
-        Schema::create('applications', function (Blueprint $table) {
-            // Crée une clé primaire nommée 'app_id'
+        Schema::create('application', function (Blueprint $table) {
             $table->id('app_id');
-            // Colonne nom, limite 80 caractères
-            $table->string('nom', 80);
+            $table->string('nom', 80)->unique();
         });
     }
 
-    /**
-     * Reverse the migrations.
-     */
     public function down(): void
     {
-        Schema::dropIfExists('applications');
+        Schema::dropIfExists('application');
     }
 };
