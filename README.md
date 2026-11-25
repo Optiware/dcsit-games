@@ -28,6 +28,8 @@ de janvier à juin 2025.
 | Comparaison Ressources | Stockage et réseau côte à côte, par mois                             |
 | Logs & Alertes         | Les 5 plus gros pics de juin (bonus du sujet)                        |
 
+Un bouton **FR / EN** en haut de la page change la langue de l'interface (le choix est gardé dans le navigateur).
+
 Les graphiques (Chart.js) lisent une petite API JSON :
 
 | Route                  | Réponse                                         |
@@ -103,6 +105,8 @@ from January to June 2025.
 | Monthly Trend        | Total usage month by month                                  |
 | Resource Comparison  | Storage and network side by side, per month                 |
 | Logs & Alerts        | The 5 biggest peaks in June (bonus task of the brief)       |
+
+A **FR / EN** button at the top of the page switches the interface language (the choice is kept in the browser).
 
 The charts (Chart.js) read a small JSON API:
 

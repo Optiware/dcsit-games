@@ -34,6 +34,15 @@ class DashboardApiTest extends TestCase
         $this->get('/')->assertOk()->assertSee('/api/top-apps');
     }
 
+    public function test_le_tableau_de_bord_propose_le_francais_et_l_anglais(): void
+    {
+        $this->get('/')
+            ->assertOk()
+            ->assertSee('data-lang="fr"', false)
+            ->assertSee('data-lang="en"', false)
+            ->assertSee('Monthly Trend');
+    }
+
     public function test_top_des_applications(): void
     {
         $donnees = $this->getJson('/api/top-apps')->assertOk()->json();

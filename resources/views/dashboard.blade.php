@@ -100,6 +100,10 @@
         .badge { padding: 4px 8px; border-radius: 4px; font-size: 0.7rem; font-weight: 700; text-transform: uppercase; font-family: 'JetBrains Mono', monospace; }
         .badge-alert { background: rgba(236, 72, 153, 0.1); color: var(--magenta); border: 1px solid var(--magenta); }
         .badge-ok { background: rgba(16, 185, 129, 0.1); color: var(--green); border: 1px solid var(--green); }
+        /* BOUTON DE LANGUE */
+        .lang-toggle { display: flex; background: var(--bg-card); border: 1px solid var(--border); border-radius: 20px; padding: 3px; }
+        .lang-toggle button { background: none; border: none; color: var(--text-muted); padding: 5px 12px; border-radius: 16px; font-family: 'JetBrains Mono', monospace; font-size: 0.8rem; font-weight: 700; cursor: pointer; }
+        .lang-toggle button.active { background: var(--cyan-glow); color: var(--bg-base); }
     </style>
 </head>
 <body>
@@ -109,52 +113,58 @@
         Campus IT
     </div>
 
-    <div class="section-title">Analyses</div>
+    <div class="section-title" data-i18n="analyses">Analyses</div>
     <ul class="menu">
-        <li><button class="active" onclick="switchTab('tab-dashboard', this)">Vue d'ensemble</button></li>
-        <li><button onclick="switchTab('tab-apps', this)">Top Applications</button></li>
-        <li><button onclick="switchTab('tab-evol', this)">Évolution Mensuelle</button></li>
-        <li><button onclick="switchTab('tab-compare', this)">Comparaison Ressources</button></li>
-        <li><button onclick="switchTab('tab-alertes', this)">Logs & Alertes</button></li>
+        <li><button class="active" onclick="switchTab('tab-dashboard', this)" data-i18n="menu_overview">Vue d'ensemble</button></li>
+        <li><button onclick="switchTab('tab-apps', this)" data-i18n="menu_apps">Top Applications</button></li>
+        <li><button onclick="switchTab('tab-evol', this)" data-i18n="menu_evol">Évolution Mensuelle</button></li>
+        <li><button onclick="switchTab('tab-compare', this)" data-i18n="menu_compare">Comparaison Ressources</button></li>
+        <li><button onclick="switchTab('tab-alertes', this)" data-i18n="menu_alerts">Logs & Alertes</button></li>
     </ul>
 </aside>
 
 <main class="main-content">
     <div class="header-top">
         <div>
-            <h2>Tableau de bord</h2>
-            <p>Vue d'ensemble détaillée • Supervision IT</p>
+            <h2 data-i18n="title">Tableau de bord</h2>
+            <p data-i18n="subtitle">Vue d'ensemble détaillée • Supervision IT</p>
         </div>
-        <div class="period-badge">JAN - JUIN 2025</div>
+        <div style="display: flex; gap: 12px; align-items: center;">
+            <div class="lang-toggle" role="group" aria-label="Langue / Language">
+                <button type="button" data-lang="fr" onclick="changerLangue('fr')">FR</button>
+                <button type="button" data-lang="en" onclick="changerLangue('en')">EN</button>
+            </div>
+            <div class="period-badge" data-i18n="period">JAN - JUIN 2025</div>
+        </div>
     </div>
 
     <div class="kpi-grid">
         <div class="kpi-card cpu">
             <div class="kpi-data">
-                <h4>CPU Total Alloué</h4>
+                <h4 data-i18n="kpi_cpu">CPU Total Alloué</h4>
                 <div class="val mono" id="kpi-cpu">-- <span>vCPU</span></div>
-                <div class="sub">Cumul 6 mois</div>
+                <div class="sub" data-i18n="kpi_cumul">Cumul 6 mois</div>
             </div>
         </div>
         <div class="kpi-card stockage">
             <div class="kpi-data">
-                <h4>Volume Stockage</h4>
+                <h4 data-i18n="kpi_stock">Volume Stockage</h4>
                 <div class="val mono" id="kpi-stock">-- <span>Go</span></div>
-                <div class="sub">Cumul 6 mois</div>
+                <div class="sub" data-i18n="kpi_cumul">Cumul 6 mois</div>
             </div>
         </div>
         <div class="kpi-card reseau">
             <div class="kpi-data">
-                <h4>Trafic Réseau</h4>
+                <h4 data-i18n="kpi_net">Trafic Réseau</h4>
                 <div class="val mono" id="kpi-res">-- <span>Go</span></div>
-                <div class="sub">Cumul 6 mois</div>
+                <div class="sub" data-i18n="kpi_cumul">Cumul 6 mois</div>
             </div>
         </div>
         <div class="kpi-card top-app">
             <div class="kpi-data">
-                <h4>Application Principale</h4>
-                <div class="val" id="kpi-topname">Chargement...</div>
-                <div class="sub mono" id="kpi-topval">-- unités</div>
+                <h4 data-i18n="kpi_top">Application Principale</h4>
+                <div class="val" id="kpi-topname" data-i18n="loading">Chargement...</div>
+                <div class="sub mono" id="kpi-topval">--</div>
             </div>
         </div>
     </div>
@@ -164,8 +174,8 @@
 
             <div class="panel bento-large">
                 <div class="panel-header">
-                    <div class="panel-subtitle">// TENDANCE GLOBALE</div>
-                    <h3 class="panel-title">Évolution de la consommation totale</h3>
+                    <div class="panel-subtitle" data-i18n="sub_trend">// TENDANCE GLOBALE</div>
+                    <h3 class="panel-title" data-i18n="title_trend">Évolution de la consommation totale</h3>
                 </div>
                 <div class="chart-container" style="height: 380px;">
                     <canvas id="mainDashboardChart"></canvas>
@@ -174,8 +184,8 @@
 
             <div class="panel bento-small">
                 <div class="panel-header">
-                    <div class="panel-subtitle">// RÉPARTITION</div>
-                    <h3 class="panel-title">Volume par ressource</h3>
+                    <div class="panel-subtitle" data-i18n="sub_split">// RÉPARTITION</div>
+                    <h3 class="panel-title" data-i18n="title_split">Volume par ressource</h3>
                 </div>
                 <div class="chart-container" style="height: 200px;">
                     <canvas id="doughnutChart"></canvas>
@@ -184,23 +194,23 @@
 
             <div class="panel bento-small" style="display: flex; flex-direction: column; justify-content: flex-start;">
                 <div class="panel-header" style="margin-bottom: 20px;">
-                    <div class="panel-subtitle">// SYNTHÈSE RAPIDE</div>
-                    <h3 class="panel-title">Points d'attention</h3>
+                    <div class="panel-subtitle" data-i18n="sub_summary">// SYNTHÈSE RAPIDE</div>
+                    <h3 class="panel-title" data-i18n="title_summary">Points d'attention</h3>
                 </div>
 
                 <div class="summary-box" style="border-left-color: var(--yellow);">
-                    <div style="font-size: 0.75rem; color: var(--text-muted); margin-bottom: 5px;">RESSOURCE DOMINANTE</div>
-                    <strong id="synth-res" style="color: var(--text-main); font-size: 1.1rem; font-family: 'JetBrains Mono', monospace;">Calcul en cours...</strong>
+                    <div style="font-size: 0.75rem; color: var(--text-muted); margin-bottom: 5px;" data-i18n="synth_res">RESSOURCE DOMINANTE</div>
+                    <strong id="synth-res" style="color: var(--text-main); font-size: 1.1rem; font-family: 'JetBrains Mono', monospace;" data-i18n="computing">Calcul en cours...</strong>
                 </div>
 
                 <div class="summary-box" style="border-left-color: var(--cyan-glow);">
-                    <div style="font-size: 0.75rem; color: var(--text-muted); margin-bottom: 5px;">APP LA PLUS GOURMANDE</div>
-                    <strong id="synth-app" style="color: var(--text-main); font-size: 1.1rem; font-family: 'JetBrains Mono', monospace;">Calcul en cours...</strong>
+                    <div style="font-size: 0.75rem; color: var(--text-muted); margin-bottom: 5px;" data-i18n="synth_app">APP LA PLUS GOURMANDE</div>
+                    <strong id="synth-app" style="color: var(--text-main); font-size: 1.1rem; font-family: 'JetBrains Mono', monospace;" data-i18n="computing">Calcul en cours...</strong>
                 </div>
 
                 <div class="summary-box" style="border-left-color: var(--magenta);">
-                    <div style="font-size: 0.75rem; color: var(--text-muted); margin-bottom: 5px;">DERNIÈRE ALERTE (JUIN)</div>
-                    <strong id="synth-alert" style="color: var(--magenta); font-size: 1rem; font-family: 'JetBrains Mono', monospace;">Calcul en cours...</strong>
+                    <div style="font-size: 0.75rem; color: var(--text-muted); margin-bottom: 5px;" data-i18n="synth_alert">DERNIÈRE ALERTE (JUIN)</div>
+                    <strong id="synth-alert" style="color: var(--magenta); font-size: 1rem; font-family: 'JetBrains Mono', monospace;" data-i18n="computing">Calcul en cours...</strong>
                 </div>
             </div>
 
@@ -210,28 +220,28 @@
     <div id="tab-apps" class="view-section">
         <div class="panel">
             <div class="panel-header">
-                <div class="panel-subtitle">// CLASSEMENT</div>
-                <h3 class="panel-title">Les 5 applications les plus consommatrices</h3>
+                <div class="panel-subtitle" data-i18n="sub_rank">// CLASSEMENT</div>
+                <h3 class="panel-title" data-i18n="title_rank">Les 5 applications les plus consommatrices</h3>
             </div>
-            <div id="content-apps">Chargement...</div>
+            <div id="content-apps" data-i18n="loading">Chargement...</div>
         </div>
     </div>
 
     <div id="tab-evol" class="view-section">
         <div class="panel">
             <div class="panel-header">
-                <div class="panel-subtitle">// DATA BRUTE</div>
-                <h3 class="panel-title">Historique mensuel détaillé</h3>
+                <div class="panel-subtitle" data-i18n="sub_raw">// DATA BRUTE</div>
+                <h3 class="panel-title" data-i18n="title_raw">Historique mensuel détaillé</h3>
             </div>
-            <div id="content-evol">Chargement...</div>
+            <div id="content-evol" data-i18n="loading">Chargement...</div>
         </div>
     </div>
 
     <div id="tab-compare" class="view-section">
         <div class="panel">
             <div class="panel-header">
-                <div class="panel-subtitle">// ANALYSE CROISÉE</div>
-                <h3 class="panel-title">Stockage vs Réseau</h3>
+                <div class="panel-subtitle" data-i18n="sub_cross">// ANALYSE CROISÉE</div>
+                <h3 class="panel-title" data-i18n="title_cross">Stockage vs Réseau</h3>
             </div>
             <div class="chart-container" style="height: 350px; margin-bottom: 30px;">
                 <canvas id="compareChart"></canvas>
@@ -243,16 +253,159 @@
     <div id="tab-alertes" class="view-section">
         <div class="panel">
             <div class="panel-header">
-                <div class="panel-subtitle">// SÉCURITÉ & SURCHARGE</div>
-                <h3 class="panel-title">Pics de charge détectés (Juin 2025)</h3>
+                <div class="panel-subtitle" data-i18n="sub_alerts">// SÉCURITÉ & SURCHARGE</div>
+                <h3 class="panel-title" data-i18n="title_alerts">Pics de charge détectés (Juin 2025)</h3>
             </div>
-            <div id="content-alertes">Chargement...</div>
+            <div id="content-alertes" data-i18n="loading">Chargement...</div>
         </div>
     </div>
 
 </main>
 
 <script>
+    // Traductions FR / EN : les textes fixes ont un attribut data-i18n,
+    // les textes créés en JavaScript passent par t().
+    const TEXTES = {
+        fr: {
+            page_title: 'Campus IT | Tableau de Bord',
+            analyses: 'Analyses',
+            menu_overview: "Vue d'ensemble",
+            menu_apps: 'Top Applications',
+            menu_evol: 'Évolution Mensuelle',
+            menu_compare: 'Comparaison Ressources',
+            menu_alerts: 'Logs & Alertes',
+            title: 'Tableau de bord',
+            subtitle: "Vue d'ensemble détaillée • Supervision IT",
+            period: 'JAN - JUIN 2025',
+            kpi_cpu: 'CPU Total Alloué',
+            kpi_stock: 'Volume Stockage',
+            kpi_net: 'Trafic Réseau',
+            kpi_top: 'Application Principale',
+            kpi_cumul: 'Cumul 6 mois',
+            loading: 'Chargement...',
+            computing: 'Calcul en cours...',
+            sub_trend: '// TENDANCE GLOBALE',
+            title_trend: 'Évolution de la consommation totale',
+            sub_split: '// RÉPARTITION',
+            title_split: 'Volume par ressource',
+            sub_summary: '// SYNTHÈSE RAPIDE',
+            title_summary: "Points d'attention",
+            synth_res: 'RESSOURCE DOMINANTE',
+            synth_app: 'APP LA PLUS GOURMANDE',
+            synth_alert: 'DERNIÈRE ALERTE (JUIN)',
+            sub_rank: '// CLASSEMENT',
+            title_rank: 'Les 5 applications les plus consommatrices',
+            sub_raw: '// DATA BRUTE',
+            title_raw: 'Historique mensuel détaillé',
+            sub_cross: '// ANALYSE CROISÉE',
+            title_cross: 'Stockage vs Réseau',
+            sub_alerts: '// SÉCURITÉ & SURCHARGE',
+            title_alerts: 'Pics de charge détectés (Juin 2025)',
+            units: 'unités',
+            gb: 'Go',
+            cumulative: 'Volume Cumulé',
+            month: 'Mois',
+            trend: 'Tendance',
+            up: '↗ Hausse',
+            down: '↘ Baisse',
+            rank: 'Rang',
+            application: 'Application',
+            total: 'Volume Total',
+            share: 'Proportion',
+            delta: 'Delta',
+            status: 'Statut',
+            resource: 'Ressource',
+            peak: 'Volume Pic',
+            critical: 'CRITIQUE',
+            warning: 'WARNING',
+        },
+        en: {
+            page_title: 'Campus IT | Dashboard',
+            analyses: 'Analytics',
+            menu_overview: 'Overview',
+            menu_apps: 'Top Applications',
+            menu_evol: 'Monthly Trend',
+            menu_compare: 'Resource Comparison',
+            menu_alerts: 'Logs & Alerts',
+            title: 'Dashboard',
+            subtitle: 'Detailed overview • IT monitoring',
+            period: 'JAN - JUN 2025',
+            kpi_cpu: 'Total CPU Allocated',
+            kpi_stock: 'Storage Volume',
+            kpi_net: 'Network Traffic',
+            kpi_top: 'Main Application',
+            kpi_cumul: '6-month total',
+            loading: 'Loading...',
+            computing: 'Computing...',
+            sub_trend: '// OVERALL TREND',
+            title_trend: 'Total usage over time',
+            sub_split: '// BREAKDOWN',
+            title_split: 'Volume per resource',
+            sub_summary: '// QUICK SUMMARY',
+            title_summary: 'Points of attention',
+            synth_res: 'DOMINANT RESOURCE',
+            synth_app: 'MOST RESOURCE-HUNGRY APP',
+            synth_alert: 'LATEST ALERT (JUNE)',
+            sub_rank: '// RANKING',
+            title_rank: 'The 5 most resource-hungry applications',
+            sub_raw: '// RAW DATA',
+            title_raw: 'Detailed monthly history',
+            sub_cross: '// CROSS ANALYSIS',
+            title_cross: 'Storage vs Network',
+            sub_alerts: '// SECURITY & OVERLOAD',
+            title_alerts: 'Load peaks detected (June 2025)',
+            units: 'units',
+            gb: 'GB',
+            cumulative: 'Cumulative Volume',
+            month: 'Month',
+            trend: 'Trend',
+            up: '↗ Up',
+            down: '↘ Down',
+            rank: 'Rank',
+            application: 'Application',
+            total: 'Total Volume',
+            share: 'Share',
+            delta: 'Delta',
+            status: 'Status',
+            resource: 'Resource',
+            peak: 'Peak Volume',
+            critical: 'CRITICAL',
+            warning: 'WARNING',
+        },
+    };
+
+    // Les noms de ressources viennent de la base, en français.
+    const RESSOURCES_EN = { 'Stockage': 'Storage', 'Réseau': 'Network' };
+
+    let langue = localStorage.getItem('langue') === 'en' ? 'en' : 'fr';
+
+    function t(cle) {
+        return TEXTES[langue][cle] ?? cle;
+    }
+
+    function nomRessource(nom) {
+        if (langue !== 'en') return nom;
+        for (const [fr, en] of Object.entries(RESSOURCES_EN)) nom = nom.replace(fr, en);
+        return nom;
+    }
+
+    function appliquerLangue() {
+        document.documentElement.lang = langue;
+        document.title = t('page_title');
+        document.querySelectorAll('[data-i18n]').forEach(el => { el.textContent = t(el.dataset.i18n); });
+        document.querySelectorAll('.lang-toggle button').forEach(b => {
+            b.classList.toggle('active', b.dataset.lang === langue);
+            b.setAttribute('aria-pressed', b.dataset.lang === langue);
+        });
+    }
+
+    // Changer de langue recharge la page : les graphiques sont redessinés dans la bonne langue.
+    function changerLangue(nouvelle) {
+        if (nouvelle === langue) return;
+        localStorage.setItem('langue', nouvelle);
+        location.reload();
+    }
+
     Chart.defaults.color = '#94a3b8';
     Chart.defaults.font.family = "'JetBrains Mono', monospace";
     Chart.defaults.borderColor = 'rgba(255, 255, 255, 0.05)';
@@ -267,6 +420,7 @@
     }
 
     document.addEventListener('DOMContentLoaded', async () => {
+        appliquerLangue();
         await Promise.all([
             fetchDataAndRender('/api/evolution', renderEvolution),
             fetchDataAndRender('/api/top-apps', renderTopApps),
@@ -301,7 +455,7 @@
             data: {
                 labels: labels,
                 datasets: [{
-                    label: 'Volume Cumulé',
+                    label: t('cumulative'),
                     data: values,
                     borderColor: '#06b6d4',
                     backgroundColor: gradient,
@@ -320,7 +474,7 @@
                 maintainAspectRatio: false,
                 plugins: {
                     legend: { display: true, position: 'top', labels: { color: '#94a3b8', font: {family: "'JetBrains Mono', monospace"} } },
-                    tooltip: { callbacks: { label: function(context) { return context.parsed.y + ' unités'; } } }
+                    tooltip: { callbacks: { label: function(context) { return context.parsed.y + ' ' + t('units'); } } }
                 },
                 scales: {
                     y: { beginAtZero: false, grid: { color: 'rgba(255,255,255,0.02)' }, ticks: { color: '#94a3b8', callback: function(value) { return value + ' u'; } } },
@@ -329,11 +483,11 @@
             }
         });
 
-        let html = '<table><thead><tr><th>Mois</th><th>Volume Cumulé</th><th>Tendance</th></tr></thead><tbody>';
+        let html = `<table><thead><tr><th>${t('month')}</th><th>${t('cumulative')}</th><th>${t('trend')}</th></tr></thead><tbody>`;
         let prev = 0;
         data.forEach(row => {
             const current = parseFloat(row.total);
-            let trend = current > prev ? '<span style="color:var(--green)">↗ Hausse</span>' : '<span style="color:var(--magenta)">↘ Baisse</span>';
+            let trend = current > prev ? `<span style="color:var(--green)">${t('up')}</span>` : `<span style="color:var(--magenta)">${t('down')}</span>`;
             if(prev === 0) trend = '-';
             html += `<tr><td class="mono">${row.mois_fmt}</td><td class="mono td-highlight">${current.toFixed(2)}</td><td class="mono">${trend}</td></tr>`;
             prev = current;
@@ -346,12 +500,12 @@
     function renderTopApps(data) {
         if(data.length > 0) {
             document.getElementById('kpi-topname').innerText = data[0].application;
-            document.getElementById('kpi-topval').innerText = parseFloat(data[0].total).toFixed(0) + ' unités';
+            document.getElementById('kpi-topval').innerText = parseFloat(data[0].total).toFixed(0) + ' ' + t('units');
             // MAJ du nouveau bloc Synthèse
             document.getElementById('synth-app').innerText = data[0].application;
         }
 
-        let html = '<table><thead><tr><th>Rang</th><th>Application</th><th>Volume Total</th><th>Proportion</th></tr></thead><tbody>';
+        let html = `<table><thead><tr><th>${t('rank')}</th><th>${t('application')}</th><th>${t('total')}</th><th>${t('share')}</th></tr></thead><tbody>`;
         const max = Math.max(...data.map(d => parseFloat(d.total)));
         data.forEach((row, i) => {
             const pct = (row.total / max) * 100;
@@ -378,33 +532,33 @@
             data: {
                 labels: labels,
                 datasets: [
-                    { label: 'Stockage', data: stockData, backgroundColor: '#eab308', borderRadius: 4 },
-                    { label: 'Réseau', data: resData, backgroundColor: '#10b981', borderRadius: 4 }
+                    { label: nomRessource('Stockage'), data: stockData, backgroundColor: '#eab308', borderRadius: 4 },
+                    { label: nomRessource('Réseau'), data: resData, backgroundColor: '#10b981', borderRadius: 4 }
                 ]
             },
             options: {
                 responsive: true, maintainAspectRatio: false,
                 plugins: {
                     legend: { display: true, labels: { color: '#94a3b8', font: {family: "'JetBrains Mono', monospace"} } },
-                    tooltip: { callbacks: { label: function(context) { return context.dataset.label + ' : ' + context.parsed.y + ' Go'; } } }
+                    tooltip: { callbacks: { label: function(context) { return context.dataset.label + ' : ' + context.parsed.y + ' ' + t('gb'); } } }
                 },
                 scales: {
-                    y: { grid: { color: 'rgba(255,255,255,0.02)' }, ticks: { color: '#94a3b8', callback: function(value) { return value + ' Go'; } } },
+                    y: { grid: { color: 'rgba(255,255,255,0.02)' }, ticks: { color: '#94a3b8', callback: function(value) { return value + ' ' + t('gb'); } } },
                     x: { grid: { display: false }, ticks: { color: '#94a3b8' } }
                 }
             }
         });
 
-        let html = '<table><thead><tr><th>Mois</th><th>Stockage</th><th>Réseau</th><th>Delta</th></tr></thead><tbody>';
+        let html = `<table><thead><tr><th>${t('month')}</th><th>${nomRessource('Stockage')}</th><th>${nomRessource('Réseau')}</th><th>${t('delta')}</th></tr></thead><tbody>`;
         data.forEach(row => {
             const stock = parseFloat(row.stockage);
             const net = parseFloat(row.reseau);
             const diff = Math.abs(net - stock).toFixed(2);
             html += `<tr>
                 <td class="mono">${row.mois_fmt}</td>
-                <td class="mono" style="color:var(--yellow)">${stock.toFixed(2)} Go</td>
-                <td class="mono" style="color:var(--green)">${net.toFixed(2)} Go</td>
-                <td class="mono">± ${diff} Go</td>
+                <td class="mono" style="color:var(--yellow)">${stock.toFixed(2)} ${t('gb')}</td>
+                <td class="mono" style="color:var(--green)">${net.toFixed(2)} ${t('gb')}</td>
+                <td class="mono">± ${diff} ${t('gb')}</td>
             </tr>`;
         });
         html += '</tbody></table>';
@@ -415,20 +569,20 @@
     function renderRepartition(data) {
         data.forEach(row => {
             if(row.ressource.includes('CPU')) document.getElementById('kpi-cpu').innerHTML = `${parseFloat(row.total).toFixed(0)} <span>vCPU</span>`;
-            if(row.ressource.includes('Stockage')) document.getElementById('kpi-stock').innerHTML = `${parseFloat(row.total).toFixed(0)} <span>Go</span>`;
-            if(row.ressource.includes('Réseau')) document.getElementById('kpi-res').innerHTML = `${parseFloat(row.total).toFixed(0)} <span>Go</span>`;
+            if(row.ressource.includes('Stockage')) document.getElementById('kpi-stock').innerHTML = `${parseFloat(row.total).toFixed(0)} <span>${t('gb')}</span>`;
+            if(row.ressource.includes('Réseau')) document.getElementById('kpi-res').innerHTML = `${parseFloat(row.total).toFixed(0)} <span>${t('gb')}</span>`;
         });
 
         // MAJ du nouveau bloc Synthèse (On prend la ressource n°1)
         if(data.length > 0) {
-            document.getElementById('synth-res').innerText = data[0].ressource;
+            document.getElementById('synth-res').innerText = nomRessource(data[0].ressource);
         }
 
         const ctx = document.getElementById('doughnutChart').getContext('2d');
         charts.doughnut = new Chart(ctx, {
             type: 'doughnut',
             data: {
-                labels: data.map(d => d.ressource),
+                labels: data.map(d => nomRessource(d.ressource)),
                 datasets: [{
                     data: data.map(d => parseFloat(d.total)),
                     backgroundColor: ['#eab308', '#10b981', '#ec4899'],
@@ -441,7 +595,7 @@
                 responsive: true, maintainAspectRatio: false,
                 plugins: {
                     legend: { display: false }, // Légende masquée pour gagner de la place dans la Bento box
-                    tooltip: { callbacks: { label: function(context) { return ' ' + context.label + ' : ' + context.parsed + ' unités'; } } }
+                    tooltip: { callbacks: { label: function(context) { return ' ' + context.label + ' : ' + context.parsed + ' ' + t('units'); } } }
                 },
                 cutout: '70%'
             }
@@ -452,16 +606,16 @@
     function renderAlertes(data) {
         // MAJ du nouveau bloc Synthèse
         if(data.length > 0) {
-            document.getElementById('synth-alert').innerText = data[0].application + ' (' + data[0].ressource + ')';
+            document.getElementById('synth-alert').innerText = data[0].application + ' (' + nomRessource(data[0].ressource) + ')';
         }
 
-        let html = '<table><thead><tr><th>Statut</th><th>Application</th><th>Ressource</th><th>Volume Pic</th></tr></thead><tbody>';
+        let html = `<table><thead><tr><th>${t('status')}</th><th>${t('application')}</th><th>${t('resource')}</th><th>${t('peak')}</th></tr></thead><tbody>`;
         data.forEach((row, i) => {
-            const badge = i === 0 ? '<span class="badge badge-alert">CRITIQUE</span>' : '<span class="badge badge-ok">WARNING</span>';
+            const badge = i === 0 ? `<span class="badge badge-alert">${t('critical')}</span>` : `<span class="badge badge-ok">${t('warning')}</span>`;
             html += `<tr>
                 <td>${badge}</td>
                 <td style="color:var(--text-main)">${row.application}</td>
-                <td class="mono">${row.ressource}</td>
+                <td class="mono">${nomRessource(row.ressource)}</td>
                 <td class="mono" style="color:${i===0 ? 'var(--magenta)' : 'var(--text-main)'}">${parseFloat(row.pic).toFixed(2)} u</td>
             </tr>`;
         });
