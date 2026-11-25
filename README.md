@@ -1,5 +1,7 @@
 # Campus IT – Tableau de bord de supervision
 
+[English version](README.en.md)
+
 Projet réalisé pour le concours **DCSITGAMES** (BTS SIO) : un tableau de bord qui suit la
 consommation des ressources informatiques (stockage, CPU, réseau) des applications d'un campus,
 de janvier à juin 2025.
